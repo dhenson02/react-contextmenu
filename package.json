@@ -27,12 +27,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vkbansal/react-contextmenu.git"
+    "url": "https://github.com/dhenson02/react-contextmenu-dk.git"
   },
   "bugs": {
-    "url": "https://github.com/vkbansal/react-contextmenu/issues"
+    "url": "https://github.com/dhenson02/react-contextmenu-dk/issues"
   },
-  "homepage": "https://github.com/vkbansal/react-contextmenu",
+  "homepage": "https://github.com/dhenson02/react-contextmenu-dk",
   "dependencies": {
     "classnames": "^2.2.5",
     "invariant": "^2.2.1",
