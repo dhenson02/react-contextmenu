@@ -1,7 +1,7 @@
 {
-  "name": "react-contextmenu",
-  "version": "2.0.0-alpha.2",
-  "description": "Context Menu implemented in React",
+  "name": "react-contextmenu-dk",
+  "version": "2.0.0-over9000",
+  "description": "Context Menu implemented in React, with checks for touch devices",
   "main": "modules/index.js",
   "keywords": [
     "react",
@@ -40,8 +40,8 @@
     "object-assign": "^4.1.0"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0",
-    "react-dom": "^0.14.0 || ^15.0.0"
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",

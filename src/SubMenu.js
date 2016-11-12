@@ -12,7 +12,7 @@ export default class SubMenu extends Component {
 
     static defaultProps = {
         disabled: false,
-        hoverDelay: 500
+        hoverDelay: 0
     };
 
     constructor(props) {
@@ -24,7 +24,8 @@ export default class SubMenu extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.isVisible !== nextState.visible;
+        return this.state.isVisible !== nextState.visible ||
+            this.props.title !== nextProps.title;
     }
 
     componentDidUpdate() {

@@ -1,11 +1,81 @@
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'fbjs/lib/shallowEqual';
 import cx from 'classnames';
 import assign from 'object-assign';
 
 import { showMenu, hideMenu } from './actions';
 import { callIfExists, cssClasses } from './helpers';
 
-export default class ContextMenuTrigger extends Component {
+class ContextMenuTrigger extends Component {
+    static propTypes = {
+        id: PropTypes.string.isRequired,
+        attributes: PropTypes.object,
+        collect: PropTypes.func,
+        holdToDisplay: PropTypes.number,
+        renderTag: PropTypes.node
+    };
+
+    static defaultProps = {
+        attributes: {},
+        holdToDisplay: null,
+        renderTag: 'div'
+    };
+
+    mouseDown = false;
+
+    handleMouseDown = (event) => {
+        if (event.which === 3 || event.button === 2) {
+            this.mouseDown = true;
+            this.handleContextClick(event);
+        }
+    }
+
+    handleMouseUp = (event) => {
+        if (event.which === 3 || event.button === 2) {
+            this.mouseDown = false;
+        }
+    }
+
+    handleContextClick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const x = event.clientX;
+        const y = event.clientY;
+
+        hideMenu();
+
+        showMenu({
+            position: {x, y},
+            target: this.elem,
+            id: this.props.id,
+            data: callIfExists(this.props.collect, this.props)
+        });
+    }
+
+    elemRef = (c) => {
+        this.elem = c;
+    }
+
+    shouldComponentUpdate = ( nextProps ) => {
+        return !shallowEqual(nextProps, this.props);
+    }
+
+    render() {
+        const { renderTag, attributes, children } = this.props;
+        const newAttrs = assign({}, attributes, {
+            className: cx(cssClasses.menuWrapper, attributes.className),
+            onContextMenu: this.handleContextClick,
+            onMouseDown: this.handleMouseDown,
+            onMouseUp: this.handleMouseUp,
+            ref: this.elemRef
+        });
+
+        return React.createElement(renderTag, newAttrs, children);
+    }
+}
+
+class TouchContextMenuTrigger extends Component {
     static propTypes = {
         id: PropTypes.string.isRequired,
         attributes: PropTypes.object,
@@ -93,3 +163,12 @@ export default class ContextMenuTrigger extends Component {
         return React.createElement(renderTag, newAttrs, children);
     }
 }
+
+var hasTouch = false;
+try {
+    document.createEvent('TouchStart');
+    hasTouch = true;
+}
+catch (e) {}
+
+export default !hasTouch ? ContextMenuTrigger : TouchContextMenuTrigger;

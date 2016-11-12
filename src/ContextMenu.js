@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-
 import listener from './globalEventListener';
 import { hideMenu } from './actions';
 import { cssClasses, callIfExists } from './helpers';
