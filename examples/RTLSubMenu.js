@@ -5,9 +5,9 @@ import ContextMenu from 'src/ContextMenu';
 import MenuItem from 'src/MenuItem';
 import SubMenu from 'src/SubMenu';
 
-const MENU_TYPE = 'SIMPLE';
+const MENU_TYPE = 'RTL';
 
-export default class SimpleMenu extends Component {
+export default class RTLSubMenu extends Component {
     constructor(props) {
         super(props);
 
@@ -23,8 +23,8 @@ export default class SimpleMenu extends Component {
     render() {
         return (
             <div>
-                <h3>Simple Menu</h3>
-                <p>This demo simple usage of a context menu.</p>
+                <h3>Right-to-Left Submenu Menu</h3>
+                <p>This demos usage of Right-to-Left submenus.</p>
                 <ContextMenuTrigger id={MENU_TYPE} holdToDisplay={1000}>
                     <div className='well'>right click to see the menu</div>
                 </ContextMenuTrigger>
@@ -34,13 +34,13 @@ export default class SimpleMenu extends Component {
                 <ContextMenu id={MENU_TYPE}>
                     <MenuItem onClick={this.handleClick} data={{ item: 'item 1' }}>Menu Item 1</MenuItem>
                     <MenuItem onClick={this.handleClick} data={{ item: 'item 2' }}>Menu Item 2</MenuItem>
-                    <SubMenu title='A SubMenu'>
+                    <SubMenu title='A SubMenu' rtl>
                         <MenuItem onClick={this.handleClick} data={{ item: 'subitem 1' }}>SubItem 1</MenuItem>
-                        <SubMenu title='Another SubMenu'>
+                        <SubMenu title='Another SubMenu' rtl>
                             <MenuItem onClick={this.handleClick} data={{ item: 'subsubitem 1' }}>SubSubItem 1</MenuItem>
                             <MenuItem onClick={this.handleClick} data={{ item: 'subsubitem 2' }}>SubSubItem 2</MenuItem>
                         </SubMenu>
-                        <SubMenu title='Yet Another SubMenu'>
+                        <SubMenu title='Yet Another SubMenu' rtl>
                             <MenuItem onClick={this.handleClick} data={{ item: 'subsubitem 3' }}>SubSubItem 3</MenuItem>
                             <MenuItem onClick={this.handleClick} data={{ item: 'subsubitem 4' }}>SubSubItem 4</MenuItem>
                         </SubMenu>

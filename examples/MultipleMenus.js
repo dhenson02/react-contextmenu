@@ -15,7 +15,7 @@ export default class MultipleMenus extends Component {
     }
 
     handleClick = (e, data) => {
-        this.setState(({logs}) => ({
+        this.setState(({ logs }) => ({
             logs: [`Clicked on menu ${data.menu} item ${data.item}`, ...logs]
         }));
     }
@@ -25,28 +25,28 @@ export default class MultipleMenus extends Component {
             <div>
                 <h3>Multiple Menus</h3>
                 <p>This demo shows usage of multiple menus on multiple targets.</p>
-                <div className='row'>
-                    <div className='col-sm-6 text-center'>
+                <div className='pure-g'>
+                    <div className='pure-u-1-2'>
                         <ContextMenuTrigger id={MENU_1} holdToDisplay={1000}>
                             <div className='well'>right click to see the menu</div>
                         </ContextMenuTrigger>
                     </div>
-                    <div className='col-sm-6 text-center'>
+                    <div className='pure-u-1-2'>
                         <ContextMenuTrigger id={MENU_2} holdToDisplay={1000}>
                             <div className='well'>right click to see the menu</div>
                         </ContextMenuTrigger>
                     </div>
                 </div>
                 <div>
-                    {this.state.logs.map((log, i) => (<p key={i}>{log}</p>))}
+                    {this.state.logs.map((log, i) => <p key={i}>{log}</p>)}
                 </div>
                 <ContextMenu id={MENU_1}>
-                    <MenuItem onClick={this.handleClick} data={{menu: 1, item: 1}}>Menu 1 Item 1</MenuItem>
-                    <MenuItem onClick={this.handleClick} data={{menu: 1, item: 2}}>Menu 1 Item 2</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ menu: 1, item: 1 }}>Menu 1 Item 1</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ menu: 1, item: 2 }}>Menu 1 Item 2</MenuItem>
                 </ContextMenu>
                 <ContextMenu id={MENU_2}>
-                    <MenuItem onClick={this.handleClick} data={{menu: 2, item: 1}}>Menu 2 Item 1</MenuItem>
-                    <MenuItem onClick={this.handleClick} data={{menu: 2, item: 2}}>Menu 2 Item 2</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ menu: 2, item: 1 }}>Menu 2 Item 1</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ menu: 2, item: 2 }}>Menu 2 Item 2</MenuItem>
                 </ContextMenu>
             </div>
         );

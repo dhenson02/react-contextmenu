@@ -1,4 +1,5 @@
-import React, { PropTypes, Component} from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 import assign from 'object-assign';
 
@@ -7,23 +8,35 @@ import { callIfExists, cssClasses, store } from './helpers';
 
 export default class MenuItem extends Component {
     static propTypes = {
+        children: PropTypes.node,
         attributes: PropTypes.object,
         data: PropTypes.object,
         disabled: PropTypes.bool,
+        divider: PropTypes.bool,
         preventClose: PropTypes.bool,
-        onClick: PropTypes.func
+        onClick: PropTypes.func,
+        selected: PropTypes.bool,
+        onMouseMove: PropTypes.func,
+        onMouseLeave: PropTypes.func
     };
 
     static defaultProps = {
         disabled: false,
         data: {},
-        attributes: {}
+        divider: false,
+        attributes: {},
+        preventClose: false,
+        onClick() { return null; },
+        children: null,
+        selected: false,
+        onMouseMove: () => null,
+        onMouseLeave: () => null
     };
 
     handleClick = (event) => {
         event.preventDefault();
 
-        if (this.props.disabled) return;
+        if (this.props.disabled || this.props.divider) return;
 
         callIfExists(
             this.props.onClick,
@@ -38,18 +51,22 @@ export default class MenuItem extends Component {
     }
 
     render() {
-        const { disabled, children, attributes } = this.props;
-        const menuItemClassNames = cx(cssClasses.menuItem, attributes && attributes.className);
-
-        const linkClasses = cx(cssClasses.menuLink, {
-            [cssClasses.menuLinkDisabled]: disabled
+        const { disabled, divider, children, attributes, selected } = this.props;
+        const menuItemClassNames = cx(cssClasses.menuItem, attributes && attributes.className, {
+            [cssClasses.menuItemDisabled]: disabled,
+            [cssClasses.menuItemDivider]: divider,
+            [cssClasses.menuItemSelected]: selected
         });
 
         return (
-            <div {...attributes} className={menuItemClassNames}>
-                <a href='#' className={linkClasses} onClick={this.handleClick}>
-                    {children}
-                </a>
+            <div
+                {...attributes} className={menuItemClassNames}
+                role='menuitem' tabIndex='-1' aria-disabled={disabled ? 'true' : 'false'}
+                aria-orientation={divider ? 'horizontal' : null}
+                ref={(ref) => { this.ref = ref; }}
+                onMouseMove={this.props.onMouseMove} onMouseLeave={this.props.onMouseLeave}
+                onTouchEnd={this.handleClick} onClick={this.handleClick}>
+                {divider ? null : children}
             </div>
         );
     }

@@ -32,7 +32,7 @@ export default class Customization extends Component {
     }
 
     handleClick = (e, data) => {
-        this.setState(({logs}) => ({
+        this.setState(({ logs }) => ({
             logs: [`Clicked on ${data.name} menu ${data.item}`, ...logs]
         }));
     }
@@ -41,24 +41,35 @@ export default class Customization extends Component {
         return (
             <div>
                 <h3>Custom Wrappers</h3>
-                <p>This demo shows usage of customization. Instead of using <code>div</code>s by default, we are using <code>tr</code>s</p>
-                <table className='table table-bordered'>
+                <p>
+                    This demo shows usage of customization.
+                    Instead of using <code>div</code>(s) by default, we are using <code>tr</code>(s)
+                </p>
+                <table className='pure-table pure-table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fruit</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {targets.map((item, i) => (
-                            <ContextMenuTrigger renderTag='tr' name={item.name}
+                            <ContextMenuTrigger
+                                renderTag='tr' name={item.name}
                                 id={MENU_TYPE} holdToDisplay={1000} key={i}
                                 collect={collect}>
+                                <td>{i + 1}</td>
                                 <td>{item.name}</td>
                             </ContextMenuTrigger>
                         ))}
                     </tbody>
                 </table>
                 <div>
-                    {this.state.logs.map((log, i) => (<p key={i}>{log}</p>))}
+                    {this.state.logs.map((log, i) => <p key={i}>{log}</p>)}
                 </div>
                 <ContextMenu id={MENU_TYPE}>
-                    <MenuItem onClick={this.handleClick} data={{item: 'item 1'}}>Menu Item 1</MenuItem>
-                    <MenuItem onClick={this.handleClick} data={{item: 'item 2'}}>Menu Item 2</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ item: 'item 1' }}>Menu Item 1</MenuItem>
+                    <MenuItem onClick={this.handleClick} data={{ item: 'item 2' }}>Menu Item 2</MenuItem>
                 </ContextMenu>
             </div>
         );

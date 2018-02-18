@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import ContextMenuTrigger from 'src/ContextMenuTrigger';
 import ContextMenu from 'src/ContextMenu';
 import MenuItem from 'src/MenuItem';
+import connectMenu from 'src/connectMenu';
 
-const MENU_TYPE = 'MULTI';
+const MENU_TYPE = 'DYNAMIC';
 
 const targets = [{
     name: 'Banana'
@@ -21,10 +23,37 @@ const targets = [{
 }];
 
 function collect(props) {
-    return { name: props.name };
+    return props;
 }
 
-export default class MultipleTargets extends Component {
+const DynamicMenu = (props) => {
+    const { id, trigger } = props;
+    const handleItemClick = trigger ? trigger.onItemClick : null;
+
+    return (
+        <ContextMenu id={id}>
+            {trigger && <MenuItem onClick={handleItemClick} data={{ action: 'Added' }}>{`Add 1 ${trigger.name}`}</MenuItem>}
+            {trigger && (
+                trigger.allowRemoval
+                    ? <MenuItem onClick={handleItemClick} data={{ action: 'Removed' }}>{`Remove 1 ${trigger.name}`}</MenuItem>
+                    : <MenuItem disabled>{'Removal disabled'}</MenuItem>
+            )}
+        </ContextMenu>
+    );
+};
+
+DynamicMenu.propTypes = {
+    id: PropTypes.string.isRequired,
+    trigger: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        onItemClick: PropTypes.func.isRequired,
+        allowRemoval: PropTypes.bool
+    }).isRequired
+};
+
+const ConnectedMenu = connectMenu(MENU_TYPE)(DynamicMenu);
+
+export default class DynamicMenuExample extends Component {
     constructor(props) {
         super(props);
 
@@ -41,7 +70,6 @@ export default class MultipleTargets extends Component {
                 logs: [`${data.action} 1 ${data.name}`, ...logs]
             }));
         }
-
         if (data.action === 'Removed' && count > 0) {
             target.setAttribute('data-count', count - 1);
 
@@ -49,7 +77,6 @@ export default class MultipleTargets extends Component {
                 logs: [`${data.action} 1 ${data.name}`, ...logs]
             }));
         }
-
         return this.setState(({ logs }) => ({
             logs: [` ${data.name} cannot be ${data.action.toLowerCase()}`, ...logs]
         }));
@@ -63,14 +90,15 @@ export default class MultipleTargets extends Component {
 
         return (
             <div>
-                <h3>Multiple Menus</h3>
-                <p>This demo shows usage of multiple menus on multiple targets.</p>
+                <h3>Dynamic Menu</h3>
+                <p>This demo shows usage of dynamically created menu on multiple targets.</p>
                 <div className='pure-g'>
                     {targets.map((item, i) => (
                         <div key={i} className='pure-u-1-6'>
                             <ContextMenuTrigger
-                                id={MENU_TYPE} name={item.name}
-                                holdToDisplay={1000}
+                                id={MENU_TYPE} holdToDisplay={1000}
+                                name={item.name} onItemClick={this.handleClick}
+                                allowRemoval={i % 2 === 0}
                                 collect={collect} attributes={attributes}>
                                 {item.name}
                             </ContextMenuTrigger>
@@ -80,10 +108,7 @@ export default class MultipleTargets extends Component {
                 <div>
                     {this.state.logs.map((log, i) => <p key={i}>{log}</p>)}
                 </div>
-                <ContextMenu id={MENU_TYPE}>
-                    <MenuItem onClick={this.handleClick} data={{ action: 'Added' }}>Add 1 count</MenuItem>
-                    <MenuItem onClick={this.handleClick} data={{ action: 'Removed' }}>Remove 1 count</MenuItem>
-                </ContextMenu>
+                <ConnectedMenu />
             </div>
         );
     }

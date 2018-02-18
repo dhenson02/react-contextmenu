@@ -1,39 +1,74 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
+import assign from 'object-assign';
 
-import { cssClasses, hasOwnProp } from './helpers';
+import AbstractMenu from './AbstractMenu';
+import { hideMenu } from './actions';
+import { callIfExists, cssClasses, hasOwnProp, store } from './helpers';
+import listener from './globalEventListener';
 
-export default class SubMenu extends Component {
+export default class SubMenu extends AbstractMenu {
     static propTypes = {
+        children: PropTypes.node.isRequired,
         title: PropTypes.node.isRequired,
+        className: PropTypes.string,
         disabled: PropTypes.bool,
-        hoverDelay: PropTypes.number
+        hoverDelay: PropTypes.number,
+        rtl: PropTypes.bool,
+        selected: PropTypes.bool,
+        onMouseMove: PropTypes.func,
+        onMouseOut: PropTypes.func,
+        forceOpen: PropTypes.bool,
+        forceClose: PropTypes.func,
+        parentKeyNavigationHandler: PropTypes.func
     };
 
     static defaultProps = {
         disabled: false,
-        hoverDelay: 0
+        hoverDelay: 0,
+        className: '',
+        rtl: false,
+        selected: false,
+        onMouseMove: () => null,
+        onMouseOut: () => null,
+        forceOpen: false,
+        forceClose: () => null,
+        parentKeyNavigationHandler: () => null
     };
 
     constructor(props) {
         super(props);
 
-        this.state = {
+        this.state = assign({}, this.state, {
             visible: false
-        };
+        });
+    }
+
+    componentDidMount() {
+        this.listenId = listener.register(() => {}, this.hideMenu);
+    }
+
+    getSubMenuType() { // eslint-disable-line class-methods-use-this
+        return SubMenu;
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.isVisible !== nextState.visible ||
-            this.props.title !== nextProps.title;
+        this.isVisibilityChange = (this.state.visible !== nextState.visible ||
+                                  this.props.forceOpen !== nextProps.forceOpen) &&
+                                  !(this.state.visible && nextProps.forceOpen) &&
+                                  !(this.props.forceOpen && nextState.visible);
+        return true;
     }
 
     componentDidUpdate() {
-        if (this.state.visible) {
+        if (!this.isVisibilityChange) return;
+        if (this.props.forceOpen || this.state.visible) {
             const wrapper = window.requestAnimationFrame || setTimeout;
-
             wrapper(() => {
-                const styles = this.getMenuPosition();
+                const styles = this.props.rtl
+                                ? this.getRTLMenuPosition()
+                                : this.getMenuPosition();
 
                 this.subMenu.style.removeProperty('top');
                 this.subMenu.style.removeProperty('bottom');
@@ -45,40 +80,34 @@ export default class SubMenu extends Component {
                 if (hasOwnProp(styles, 'bottom')) this.subMenu.style.bottom = styles.bottom;
                 if (hasOwnProp(styles, 'right')) this.subMenu.style.right = styles.right;
                 this.subMenu.classList.add(cssClasses.menuVisible);
+
+                this.registerHandlers();
+                this.setState({ selectedItem: null });
             });
         } else {
+            const cleanup = () => {
+                this.subMenu.removeEventListener('transitionend', cleanup);
+                this.subMenu.style.removeProperty('bottom');
+                this.subMenu.style.removeProperty('right');
+                this.subMenu.style.top = 0;
+                this.subMenu.style.left = '100%';
+                this.unregisterHandlers();
+            };
+            this.subMenu.addEventListener('transitionend', cleanup);
             this.subMenu.classList.remove(cssClasses.menuVisible);
-            this.subMenu.style.removeProperty('bottom');
-            this.subMenu.style.removeProperty('right');
-            this.subMenu.style.top = 0;
-            this.subMenu.style.left = '100%';
         }
     }
 
     componentWillUnmount() {
+        if (this.listenId) {
+            listener.unregister(this.listenId);
+        }
+
         if (this.opentimer) clearTimeout(this.opentimer);
 
         if (this.closetimer) clearTimeout(this.closetimer);
-    }
 
-    handleClick = (e) => {
-        e.preventDefault();
-    }
-
-    handleMouseEnter = () => {
-        if (this.closetimer) clearTimeout(this.closetimer);
-
-        if (this.props.disabled || this.state.visible) return;
-
-        this.opentimer = setTimeout(() => this.setState({visible: true}), this.props.hoverDelay);
-    }
-
-    handleMouseLeave = () => {
-        if (this.opentimer) clearTimeout(this.opentimer);
-
-        if (!this.state.visible) return;
-
-        this.closetimer = setTimeout(() => this.setState({visible: false}), this.props.hoverDelay);
+        this.unregisterHandlers();
     }
 
     getMenuPosition = () => {
@@ -101,6 +130,73 @@ export default class SubMenu extends Component {
         return position;
     }
 
+    getRTLMenuPosition = () => {
+        const { innerHeight } = window;
+        const rect = this.subMenu.getBoundingClientRect();
+        const position = {};
+
+        if (rect.bottom > innerHeight) {
+            position.bottom = 0;
+        } else {
+            position.top = 0;
+        }
+
+        if (rect.left < 0) {
+            position.left = '100%';
+        } else {
+            position.right = '100%';
+        }
+
+        return position;
+    }
+
+    hideMenu = () => {
+        if (this.props.forceOpen) {
+            this.props.forceClose();
+        }
+        this.setState({ visible: false, selectedItem: null });
+        this.unregisterHandlers();
+    };
+
+    handleClick = (event) => {
+        event.preventDefault();
+
+        if (this.props.disabled) return;
+
+        callIfExists(
+            this.props.onClick,
+            event,
+            assign({}, this.props.data, store.data),
+            store.target
+        );
+
+        if (this.props.preventClose) return;
+
+        hideMenu();
+    }
+
+    handleMouseEnter = () => {
+        if (this.closetimer) clearTimeout(this.closetimer);
+
+        if (this.props.disabled || this.state.visible) return;
+
+        this.opentimer = setTimeout(() => this.setState({
+            visible: true,
+            selectedItem: null
+        }), this.props.hoverDelay);
+    }
+
+    handleMouseLeave = () => {
+        if (this.opentimer) clearTimeout(this.opentimer);
+
+        if (!this.state.visible) return;
+
+        this.closetimer = setTimeout(() => this.setState({
+            visible: false,
+            selectedItem: null
+        }), this.props.hoverDelay);
+    }
+
     menuRef = (c) => {
         this.menu = c;
     }
@@ -109,10 +205,20 @@ export default class SubMenu extends Component {
         this.subMenu = c;
     }
 
+    registerHandlers = () => {
+        document.removeEventListener('keydown', this.props.parentKeyNavigationHandler);
+        document.addEventListener('keydown', this.handleKeyNavigation);
+    }
+
+    unregisterHandlers = () => {
+        document.removeEventListener('keydown', this.handleKeyNavigation);
+        document.addEventListener('keydown', this.props.parentKeyNavigationHandler);
+    }
+
     render() {
-        const { children, disabled, title } = this.props;
+        const { children, disabled, title, selected } = this.props;
         const { visible } = this.state;
-        const menuItemProps = {
+        const menuProps = {
             ref: this.menuRef,
             onMouseEnter: this.handleMouseEnter,
             onMouseLeave: this.handleMouseLeave,
@@ -121,31 +227,34 @@ export default class SubMenu extends Component {
                 position: 'relative'
             }
         };
-        const menuLinkProps = {
-            href: '#',
-            className: cx(cssClasses.menuLink, {
-                [cssClasses.menuLinkDisabled]: disabled,
-                [cssClasses.menuLinkActive]: visible
+        const menuItemProps = {
+            className: cx(cssClasses.menuItem, {
+                [cssClasses.menuItemDisabled]: disabled,
+                [cssClasses.menuItemActive]: visible,
+                [cssClasses.menuItemSelected]: selected
             }),
+            onMouseMove: this.props.onMouseMove,
+            onMouseOut: this.props.onMouseOut,
             onClick: this.handleClick
         };
         const subMenuProps = {
             ref: this.subMenuRef,
             style: {
                 position: 'absolute',
+                transition: 'opacity 1ms', // trigger transitionend event
                 top: 0,
                 left: '100%'
             },
-            className: cssClasses.menu
+            className: cx(cssClasses.menu, this.props.className)
         };
 
         return (
-            <nav {...menuItemProps}>
-                <a {...menuLinkProps}>
+            <nav {...menuProps} role='menuitem' tabIndex='-1' aria-haspopup='true'>
+                <div {...menuItemProps}>
                     {title}
-                </a>
-                <nav {...subMenuProps}>
-                    {children}
+                </div>
+                <nav {...subMenuProps} role='menu' tabIndex='-1'>
+                    {this.renderChildren(children)}
                 </nav>
             </nav>
         );

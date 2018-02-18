@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import shallowEqual from 'fbjs/lib/shallowEqual';
 import cx from 'classnames';
 import assign from 'object-assign';
@@ -78,55 +79,88 @@ class ContextMenuTrigger extends Component {
 class TouchContextMenuTrigger extends Component {
     static propTypes = {
         id: PropTypes.string.isRequired,
+        children: PropTypes.node.isRequired,
         attributes: PropTypes.object,
         collect: PropTypes.func,
+        disable: PropTypes.bool,
         holdToDisplay: PropTypes.number,
-        renderTag: PropTypes.node
+        renderTag: PropTypes.oneOfType([
+            PropTypes.node,
+            PropTypes.func
+        ])
     };
 
     static defaultProps = {
         attributes: {},
+        collect() { return null; },
+        disable: false,
         holdToDisplay: 1000,
         renderTag: 'div'
     };
 
-
-    mouseDown = false;
+    touchHandled = false;
 
     handleMouseDown = (event) => {
         if (this.props.holdToDisplay >= 0 && event.button === 0) {
             event.persist();
+            event.stopPropagation();
 
-            this.mouseDown = true;
-            setTimeout(() => {
-                if (this.mouseDown) this.handleContextClick(event);
-            }, this.props.holdToDisplay);
+            this.mouseDownTimeoutId = setTimeout(
+                () => this.handleContextClick(event),
+                this.props.holdToDisplay
+            );
         }
+        callIfExists(this.props.attributes.onMouseDown, event);
     }
 
     handleMouseUp = (event) => {
         if (event.button === 0) {
-            this.mouseDown = false;
+            clearTimeout(this.mouseDownTimeoutId);
         }
+        callIfExists(this.props.attributes.onMouseUp, event);
+    }
+
+    handleMouseOut = (event) => {
+        if (event.button === 0) {
+            clearTimeout(this.mouseDownTimeoutId);
+        }
+        callIfExists(this.props.attributes.onMouseOut, event);
     }
 
     handleTouchstart = (event) => {
+        this.touchHandled = false;
+
         if (this.props.holdToDisplay >= 0) {
             event.persist();
+            event.stopPropagation();
 
-            this.mouseDown = true;
-            setTimeout(() => {
-                if (this.mouseDown) this.handleContextClick(event);
-            }, this.props.holdToDisplay);
+            this.touchstartTimeoutId = setTimeout(
+                () => {
+                    this.handleContextClick(event);
+                    this.touchHandled = true;
+                },
+                this.props.holdToDisplay
+            );
         }
+        callIfExists(this.props.attributes.onTouchStart, event);
     }
 
     handleTouchEnd = (event) => {
-        event.preventDefault();
-        this.mouseDown = false;
+        if (this.touchHandled) {
+            event.preventDefault();
+        }
+        clearTimeout(this.touchstartTimeoutId);
+        callIfExists(this.props.attributes.onTouchEnd, event);
+    }
+
+    handleContextMenu = (event) => {
+        this.handleContextClick(event);
+        callIfExists(this.props.attributes.onContextMenu, event);
     }
 
     handleContextClick = (event) => {
+        if (this.props.disable) return;
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -135,12 +169,22 @@ class TouchContextMenuTrigger extends Component {
 
         hideMenu();
 
-        showMenu({
-            position: {x, y},
+        let data = callIfExists(this.props.collect, this.props);
+        let showMenuConfig = {
+            position: { x, y },
             target: this.elem,
             id: this.props.id,
-            data: callIfExists(this.props.collect, this.props)
-        });
+            data
+        };
+        if (data && (typeof data.then === 'function')) {
+            // it's promise
+            data.then((resp) => {
+                showMenuConfig.data = resp;
+                showMenu(showMenuConfig);
+            });
+        } else {
+            showMenu(showMenuConfig);
+        }
     }
 
     elemRef = (c) => {
@@ -151,12 +195,12 @@ class TouchContextMenuTrigger extends Component {
         const { renderTag, attributes, children } = this.props;
         const newAttrs = assign({}, attributes, {
             className: cx(cssClasses.menuWrapper, attributes.className),
-            onContextMenu: this.handleContextClick,
+            onContextMenu: this.handleContextMenu,
             onMouseDown: this.handleMouseDown,
             onMouseUp: this.handleMouseUp,
             onTouchStart: this.handleTouchstart,
             onTouchEnd: this.handleTouchEnd,
-            onMouseOut: this.handleMouseUp,
+            onMouseOut: this.handleMouseOut,
             ref: this.elemRef
         });
 
