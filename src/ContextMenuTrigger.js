@@ -15,6 +15,14 @@ class ContextMenuTrigger extends Component {
     //     renderTag: PropTypes.node
     // };
 
+    static allProps = [
+        `id`,
+        `attributes`,
+        `collect`,
+        `holdToDisplay`,
+        `renderTag`,
+    ];
+
     static defaultProps = {
         attributes: {},
         holdToDisplay: null,

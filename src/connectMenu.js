@@ -4,7 +4,7 @@ import ContextMenuTrigger from './ContextMenuTrigger';
 import listener from './globalEventListener';
 
 // collect ContextMenuTrigger's expected props to NOT pass them on as part of the context
-const ignoredTriggerProps = [...Object.keys(ContextMenuTrigger.propTypes), 'children'];
+const ignoredTriggerProps = [...ContextMenuTrigger.allProps, 'children'];
 
 // expect the id of the menu to be responsible for as outer parameter
 export default function (menuId) {
