@@ -9,6 +9,10 @@ exports[`ContextMenu tests does not shows when event with incorrect "id" is trig
   onHide={[Function]}
   onMouseLeave={[Function]}
   onShow={[Function]}
+  preventHideOnContextMenu={false}
+  preventHideOnResize={false}
+  preventHideOnScroll={false}
+  rtl={false}
   style={Object {}}
 >
   <nav
@@ -37,6 +41,10 @@ exports[`ContextMenu tests does not shows when event with incorrect "id" is trig
   onHide={[Function]}
   onMouseLeave={[Function]}
   onShow={[Function]}
+  preventHideOnContextMenu={false}
+  preventHideOnResize={false}
+  preventHideOnScroll={false}
+  rtl={false}
   style={Object {}}
 >
   <nav
@@ -65,6 +73,10 @@ exports[`ContextMenu tests shows when event with correct "id" is triggered 1`] =
   onHide={[Function]}
   onMouseLeave={[Function]}
   onShow={[Function]}
+  preventHideOnContextMenu={false}
+  preventHideOnResize={false}
+  preventHideOnScroll={false}
+  rtl={false}
   style={Object {}}
 >
   <nav
@@ -93,6 +105,10 @@ exports[`ContextMenu tests shows when event with correct "id" is triggered 2`] =
   onHide={[Function]}
   onMouseLeave={[Function]}
   onShow={[Function]}
+  preventHideOnContextMenu={false}
+  preventHideOnResize={false}
+  preventHideOnScroll={false}
+  rtl={false}
   style={Object {}}
 >
   <nav

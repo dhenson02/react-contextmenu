@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import assign from 'object-assign';
 
-import AbstractMenu from './AbstractMenu';
 import { hideMenu } from './actions';
+import AbstractMenu from './AbstractMenu';
 import { callIfExists, cssClasses, hasOwnProp, store } from './helpers';
 import listener from './globalEventListener';
 
 export default class SubMenu extends AbstractMenu {
     static propTypes = {
         children: PropTypes.node.isRequired,
+        attributes: PropTypes.object,
         title: PropTypes.node.isRequired,
         className: PropTypes.string,
         disabled: PropTypes.bool,
@@ -27,6 +28,7 @@ export default class SubMenu extends AbstractMenu {
     static defaultProps = {
         disabled: false,
         hoverDelay: 0,
+        attributes: {},
         className: '',
         rtl: false,
         selected: false,
@@ -46,7 +48,7 @@ export default class SubMenu extends AbstractMenu {
     }
 
     componentDidMount() {
-        this.listenId = listener.register(() => {}, this.hideMenu);
+        this.listenId = listener.register(() => {}, this.hideSubMenu);
     }
 
     getSubMenuType() { // eslint-disable-line class-methods-use-this
@@ -67,8 +69,8 @@ export default class SubMenu extends AbstractMenu {
             const wrapper = window.requestAnimationFrame || setTimeout;
             wrapper(() => {
                 const styles = this.props.rtl
-                                ? this.getRTLMenuPosition()
-                                : this.getMenuPosition();
+                    ? this.getRTLMenuPosition()
+                    : this.getMenuPosition();
 
                 this.subMenu.style.removeProperty('top');
                 this.subMenu.style.removeProperty('bottom');
@@ -107,7 +109,7 @@ export default class SubMenu extends AbstractMenu {
 
         if (this.closetimer) clearTimeout(this.closetimer);
 
-        this.unregisterHandlers();
+        this.unregisterHandlers(true);
     }
 
     getMenuPosition = () => {
@@ -150,7 +152,12 @@ export default class SubMenu extends AbstractMenu {
         return position;
     }
 
-    hideMenu = () => {
+    hideSubMenu = (e) => {
+        // avoid closing submenus of a different menu tree
+        if (e.detail && e.detail.id && this.menu && e.detail.id !== this.menu.id) {
+            return;
+        }
+
         if (this.props.forceOpen) {
             this.props.forceClose();
         }
@@ -170,7 +177,7 @@ export default class SubMenu extends AbstractMenu {
             store.target
         );
 
-        if (this.props.preventClose) return;
+        if (!this.props.onClick || this.props.preventCloseOnClick) return;
 
         hideMenu();
     }
@@ -210,28 +217,30 @@ export default class SubMenu extends AbstractMenu {
         document.addEventListener('keydown', this.handleKeyNavigation);
     }
 
-    unregisterHandlers = () => {
+    unregisterHandlers = (dismounting) => {
         document.removeEventListener('keydown', this.handleKeyNavigation);
-        document.addEventListener('keydown', this.props.parentKeyNavigationHandler);
+        if (!dismounting) {
+            document.addEventListener('keydown', this.props.parentKeyNavigationHandler);
+        }
     }
 
     render() {
-        const { children, disabled, title, selected } = this.props;
+        const { children, attributes, disabled, title, selected } = this.props;
         const { visible } = this.state;
         const menuProps = {
             ref: this.menuRef,
             onMouseEnter: this.handleMouseEnter,
             onMouseLeave: this.handleMouseLeave,
-            className: cx(cssClasses.menuItem, cssClasses.subMenu),
+            className: cx(cssClasses.menuItem, cssClasses.subMenu, attributes.listClassName),
             style: {
                 position: 'relative'
             }
         };
         const menuItemProps = {
-            className: cx(cssClasses.menuItem, {
-                [cssClasses.menuItemDisabled]: disabled,
-                [cssClasses.menuItemActive]: visible,
-                [cssClasses.menuItemSelected]: selected
+            className: cx(cssClasses.menuItem, attributes.className, {
+                [cx(cssClasses.menuItemDisabled, attributes.disabledClassName)]: disabled,
+                [cx(cssClasses.menuItemActive, attributes.visibleClassName)]: visible,
+                [cx(cssClasses.menuItemSelected, attributes.selectedClassName)]: selected
             }),
             onMouseMove: this.props.onMouseMove,
             onMouseOut: this.props.onMouseOut,
@@ -250,7 +259,7 @@ export default class SubMenu extends AbstractMenu {
 
         return (
             <nav {...menuProps} role='menuitem' tabIndex='-1' aria-haspopup='true'>
-                <div {...menuItemProps}>
+                <div {...attributes} {...menuItemProps}>
                     {title}
                 </div>
                 <nav {...subMenuProps} role='menu' tabIndex='-1'>

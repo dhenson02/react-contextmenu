@@ -16,9 +16,13 @@ export default class ContextMenu extends AbstractMenu {
         data: PropTypes.object,
         className: PropTypes.string,
         hideOnLeave: PropTypes.bool,
+        rtl: PropTypes.bool,
         onHide: PropTypes.func,
         onMouseLeave: PropTypes.func,
         onShow: PropTypes.func,
+        preventHideOnContextMenu: PropTypes.bool,
+        preventHideOnResize: PropTypes.bool,
+        preventHideOnScroll: PropTypes.bool,
         style: PropTypes.object
     };
 
@@ -26,9 +30,13 @@ export default class ContextMenu extends AbstractMenu {
         className: '',
         data: {},
         hideOnLeave: false,
+        rtl: false,
         onHide() { return null; },
         onMouseLeave() { return null; },
         onShow() { return null; },
+        preventHideOnContextMenu: false,
+        preventHideOnResize: false,
+        preventHideOnScroll: false,
         style: {}
     };
 
@@ -51,13 +59,14 @@ export default class ContextMenu extends AbstractMenu {
     }
 
     componentDidUpdate() {
+        const wrapper = window.requestAnimationFrame || setTimeout;
         if (this.state.isVisible) {
-            const wrapper = window.requestAnimationFrame || setTimeout;
-
             wrapper(() => {
                 const { x, y } = this.state;
 
-                const { top, left } = this.getMenuPosition(x, y);
+                const { top, left } = this.props.rtl
+                    ? this.getRTLMenuPosition(x, y)
+                    : this.getMenuPosition(x, y);
 
                 wrapper(() => {
                     if (!this.menu) return;
@@ -68,9 +77,11 @@ export default class ContextMenu extends AbstractMenu {
                 });
             });
         } else {
-            if (!this.menu) return;
-            this.menu.style.opacity = 0;
-            this.menu.style.pointerEvents = 'none';
+            wrapper(() => {
+                if (!this.menu) return;
+                this.menu.style.opacity = 0;
+                this.menu.style.pointerEvents = 'none';
+            });
         }
     }
 
@@ -84,16 +95,16 @@ export default class ContextMenu extends AbstractMenu {
 
     registerHandlers = () => {
         document.addEventListener('mousedown', this.handleOutsideClick);
-        document.addEventListener('ontouchstart', this.handleOutsideClick);
-        document.addEventListener('scroll', this.handleHide);
-        document.addEventListener('contextmenu', this.handleHide);
+        document.addEventListener('touchstart', this.handleOutsideClick);
+        if (!this.props.preventHideOnScroll) document.addEventListener('scroll', this.handleHide);
+        if (!this.props.preventHideOnContextMenu) document.addEventListener('contextmenu', this.handleHide);
         document.addEventListener('keydown', this.handleKeyNavigation);
-        window.addEventListener('resize', this.handleHide);
+        if (!this.props.preventHideOnResize) window.addEventListener('resize', this.handleHide);
     }
 
     unregisterHandlers = () => {
         document.removeEventListener('mousedown', this.handleOutsideClick);
-        document.removeEventListener('ontouchstart', this.handleOutsideClick);
+        document.removeEventListener('touchstart', this.handleOutsideClick);
         document.removeEventListener('scroll', this.handleHide);
         document.removeEventListener('contextmenu', this.handleHide);
         document.removeEventListener('keydown', this.handleKeyNavigation);
@@ -178,6 +189,39 @@ export default class ContextMenu extends AbstractMenu {
         return menuStyles;
     }
 
+    getRTLMenuPosition = (x = 0, y = 0) => {
+        let menuStyles = {
+            top: y,
+            left: x
+        };
+
+        if (!this.menu) return menuStyles;
+
+        const { innerWidth, innerHeight } = window;
+        const rect = this.menu.getBoundingClientRect();
+
+        // Try to position the menu on the left side of the cursor
+        menuStyles.left = x - rect.width;
+
+        if (y + rect.height > innerHeight) {
+            menuStyles.top -= rect.height;
+        }
+
+        if (menuStyles.left < 0) {
+            menuStyles.left += rect.width;
+        }
+
+        if (menuStyles.top < 0) {
+            menuStyles.top = rect.height < innerHeight ? (innerHeight - rect.height) / 2 : 0;
+        }
+
+        if (menuStyles.left + rect.width > innerWidth) {
+            menuStyles.left = rect.width < innerWidth ? (innerWidth - rect.width) / 2 : 0;
+        }
+
+        return menuStyles;
+    }
+
     menuRef = (c) => {
         this.menu = c;
     }
@@ -186,9 +230,9 @@ export default class ContextMenu extends AbstractMenu {
         const { children, className, style } = this.props;
         const { isVisible } = this.state;
         const inlineStyle = assign(
-          {},
-          style,
-          { position: 'fixed', opacity: 0, pointerEvents: 'none' }
+            {},
+            style,
+            { position: 'fixed', opacity: 0, pointerEvents: 'none' }
         );
         const menuClassnames = cx(cssClasses.menu, className, {
             [cssClasses.menuVisible]: isVisible
