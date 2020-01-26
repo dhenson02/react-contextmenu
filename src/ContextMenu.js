@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import assign from 'object-assign';
 
@@ -10,21 +9,21 @@ import { hideMenu } from './actions';
 import { cssClasses, callIfExists, store } from './helpers';
 
 export default class ContextMenu extends AbstractMenu {
-    static propTypes = {
-        id: PropTypes.string.isRequired,
-        children: PropTypes.node.isRequired,
-        data: PropTypes.object,
-        className: PropTypes.string,
-        hideOnLeave: PropTypes.bool,
-        rtl: PropTypes.bool,
-        onHide: PropTypes.func,
-        onMouseLeave: PropTypes.func,
-        onShow: PropTypes.func,
-        preventHideOnContextMenu: PropTypes.bool,
-        preventHideOnResize: PropTypes.bool,
-        preventHideOnScroll: PropTypes.bool,
-        style: PropTypes.object
-    };
+    // static propTypes = {
+    //     id: PropTypes.string.isRequired,
+    //     children: PropTypes.node.isRequired,
+    //     data: PropTypes.object,
+    //     className: PropTypes.string,
+    //     hideOnLeave: PropTypes.bool,
+    //     rtl: PropTypes.bool,
+    //     onHide: PropTypes.func,
+    //     onMouseLeave: PropTypes.func,
+    //     onShow: PropTypes.func,
+    //     preventHideOnContextMenu: PropTypes.bool,
+    //     preventHideOnResize: PropTypes.bool,
+    //     preventHideOnScroll: PropTypes.bool,
+    //     style: PropTypes.object
+    // };
 
     static defaultProps = {
         className: '',

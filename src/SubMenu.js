@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import assign from 'object-assign';
 
@@ -9,25 +8,25 @@ import { callIfExists, cssClasses, hasOwnProp, store } from './helpers';
 import listener from './globalEventListener';
 
 export default class SubMenu extends AbstractMenu {
-    static propTypes = {
-        children: PropTypes.node.isRequired,
-        attributes: PropTypes.object,
-        title: PropTypes.node.isRequired,
-        className: PropTypes.string,
-        disabled: PropTypes.bool,
-        hoverDelay: PropTypes.number,
-        rtl: PropTypes.bool,
-        selected: PropTypes.bool,
-        onMouseMove: PropTypes.func,
-        onMouseOut: PropTypes.func,
-        forceOpen: PropTypes.bool,
-        forceClose: PropTypes.func,
-        parentKeyNavigationHandler: PropTypes.func
-    };
+    // static propTypes = {
+    //     children: PropTypes.node.isRequired,
+    //     attributes: PropTypes.object,
+    //     title: PropTypes.node.isRequired,
+    //     className: PropTypes.string,
+    //     disabled: PropTypes.bool,
+    //     hoverDelay: PropTypes.number,
+    //     rtl: PropTypes.bool,
+    //     selected: PropTypes.bool,
+    //     onMouseMove: PropTypes.func,
+    //     onMouseOut: PropTypes.func,
+    //     forceOpen: PropTypes.bool,
+    //     forceClose: PropTypes.func,
+    //     parentKeyNavigationHandler: PropTypes.func
+    // };
 
     static defaultProps = {
         disabled: false,
-        hoverDelay: 0,
+        hoverDelay: 500,
         attributes: {},
         className: '',
         rtl: false,

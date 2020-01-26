@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
 import MenuItem from './MenuItem';
 
 export default class AbstractMenu extends Component {
-    static propTypes = {
-        children: PropTypes.node.isRequired
-    };
+    // static propTypes = {
+    //     children: PropTypes.node.isRequired
+    // };
 
     constructor(props) {
         super(props);

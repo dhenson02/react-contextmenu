@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import assign from 'object-assign';
 
@@ -7,19 +6,19 @@ import { hideMenu } from './actions';
 import { callIfExists, cssClasses, store } from './helpers';
 
 export default class MenuItem extends Component {
-    static propTypes = {
-        attributes: PropTypes.object,
-        children: PropTypes.node,
-        className: PropTypes.string,
-        data: PropTypes.object,
-        disabled: PropTypes.bool,
-        divider: PropTypes.bool,
-        onClick: PropTypes.func,
-        onMouseLeave: PropTypes.func,
-        onMouseMove: PropTypes.func,
-        preventClose: PropTypes.bool,
-        selected: PropTypes.bool
-    };
+    // static propTypes = {
+    //     attributes: PropTypes.object,
+    //     children: PropTypes.node,
+    //     className: PropTypes.string,
+    //     data: PropTypes.object,
+    //     disabled: PropTypes.bool,
+    //     divider: PropTypes.bool,
+    //     onClick: PropTypes.func,
+    //     onMouseLeave: PropTypes.func,
+    //     onMouseMove: PropTypes.func,
+    //     preventClose: PropTypes.bool,
+    //     selected: PropTypes.bool
+    // };
 
     static defaultProps = {
         attributes: {},

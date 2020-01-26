@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import shallowEqual from 'fbjs/lib/shallowEqual';
 import cx from 'classnames';
 import assign from 'object-assign';
@@ -8,13 +7,13 @@ import { showMenu, hideMenu } from './actions';
 import { callIfExists, cssClasses } from './helpers';
 
 class ContextMenuTrigger extends Component {
-    static propTypes = {
-        id: PropTypes.string.isRequired,
-        attributes: PropTypes.object,
-        collect: PropTypes.func,
-        holdToDisplay: PropTypes.number,
-        renderTag: PropTypes.node
-    };
+    // static propTypes = {
+    //     id: PropTypes.string.isRequired,
+    //     attributes: PropTypes.object,
+    //     collect: PropTypes.func,
+    //     holdToDisplay: PropTypes.number,
+    //     renderTag: PropTypes.node
+    // };
 
     static defaultProps = {
         attributes: {},
@@ -77,19 +76,19 @@ class ContextMenuTrigger extends Component {
 }
 
 class TouchContextMenuTrigger extends Component {
-    static propTypes = {
-        id: PropTypes.string.isRequired,
-        children: PropTypes.node.isRequired,
-        attributes: PropTypes.object,
-        collect: PropTypes.func,
-        disable: PropTypes.bool,
-        holdToDisplay: PropTypes.number,
-        posX: PropTypes.number,
-        posY: PropTypes.number,
-        renderTag: PropTypes.elementType,
-        mouseButton: PropTypes.number,
-        disableIfShiftIsPressed: PropTypes.bool
-    };
+    // static propTypes = {
+    //     id: PropTypes.string.isRequired,
+    //     children: PropTypes.node.isRequired,
+    //     attributes: PropTypes.object,
+    //     collect: PropTypes.func,
+    //     disable: PropTypes.bool,
+    //     holdToDisplay: PropTypes.number,
+    //     posX: PropTypes.number,
+    //     posY: PropTypes.number,
+    //     renderTag: PropTypes.elementType,
+    //     mouseButton: PropTypes.number,
+    //     disableIfShiftIsPressed: PropTypes.bool
+    // };
 
     static defaultProps = {
         attributes: {},
