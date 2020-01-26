@@ -1,3 +1,5 @@
+# !!! Looking for maintainers !!!
+
 [![NPM version][npm-image]][npm-url]
 
 [![NPM](https://nodei.co/npm/react-contextmenu.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/react-contextmenu/)
@@ -48,27 +50,27 @@ import ReactDOM from "react-dom";
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
 function handleClick(e, data) {
-  console.log(data);
+  console.log(data.foo);
 }
 
 function MyApp() {
   return (
     <div>
 
-      <ContextMenuTrigger id="some_unique_identifier">
+      <ContextMenuTrigger id="some_unique_identifier"> {/* NOTICE: id must be unique for EVERY instance */}
         <div className="well">Right click to see the menu</div>
       </ContextMenuTrigger>
 
       <ContextMenu id="some_unique_identifier">
-        <MenuItem data={"some_data"} onClick={this.handleClick}>
+        <MenuItem data={{foo: 'bar'}} onClick={this.handleClick}>
           ContextMenu Item 1
         </MenuItem>
-        <MenuItem data={"some_data"} onClick={this.handleClick}>
+        <MenuItem data={{foo: 'bar'}} onClick={this.handleClick}>
           ContextMenu Item 2
         </MenuItem>
         <MenuItem divider />
-        <MenuItem data={"some_data"} onClick={this.handleClick}>
-   	      ContextMenu Item 3
+        <MenuItem data={{foo: 'bar'}} onClick={this.handleClick}>
+          ContextMenu Item 3
         </MenuItem>
       </ContextMenu>
 
@@ -95,6 +97,7 @@ See [react-contextmenu.css](./examples/react-contextmenu.css) for theming exampl
 ## Who's using react-contextmenu?
 - [react-data-grid](https://github.com/adazzle/react-data-grid)
 - [teamup.com](https://teamup.com)
+- [Spotify Web Player](https://open.spotify.com)
 
 ## Contributors
 

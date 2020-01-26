@@ -1,3 +1,4 @@
+.idea
 node_modules/
 public/
 dist/
@@ -5,6 +6,6 @@ modules/
 es6/
 coverage/
 .vscode
+.idea
 *.log
 *.js.map
-.idea
